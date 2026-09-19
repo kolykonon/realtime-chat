@@ -39,9 +39,18 @@ class RedisSettings(BaseSettings):
         env_file = '.env'
         case_sensitive = True
 
+class SecuritySettings(BaseSettings):
+    secret_key: str = os.getenv('SECURITY_KEY')
+
+    class Config:
+        env_file = '.env'
+        case_sensitive = True
+
+
 class Settings(BaseSettings):
     redis_settings: RedisSettings = RedisSettings()
     postgres_settings: PostgresSettings = PostgresSettings()
+    security_settings: SecuritySettings = SecuritySettings()
 
     class Config:
         env_file = '.env'
