@@ -1,6 +1,5 @@
 from sqlalchemy import Integer, ForeignKey, String, Text
-from sqlalchemy.orm import Mapped
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from chat_service.db.base import Base
 from chat_service.db.mixins.id_mixin import IDMixin
