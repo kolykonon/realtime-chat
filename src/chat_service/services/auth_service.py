@@ -16,4 +16,7 @@ class AuthService:
         user.password = hash_password(user.password)
         await self.user_service.create_user(user)
 
+def get_auth_service(user_service: UserService = Depends(get_user_service)) -> AuthService:
+    return AuthService(user_service)
+
 
