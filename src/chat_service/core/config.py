@@ -40,8 +40,8 @@ class RedisSettings(BaseSettings):
         case_sensitive = True
 
 class Settings(BaseSettings):
-    redis_settings: RedisSettings = RedisSettings
-    postgres_settings: PostgresSettings = PostgresSettings
+    redis_settings: RedisSettings = RedisSettings()
+    postgres_settings: PostgresSettings = PostgresSettings()
 
     class Config:
         env_file = '.env'
