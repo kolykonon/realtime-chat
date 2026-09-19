@@ -10,7 +10,7 @@ from chat_service.db.mixins.timestamp_mixin import TimestampMixin
 class User(Base,IDMixin,TimestampMixin):
     __tablename__ = 'users'
     username: Mapped[str] = mapped_column(String(100), nullable=False,unique=True)
-    password: Mapped[str] = mapped_column(String(100), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(100), nullable=False)
 
     class Config:
         orm_mode = True
