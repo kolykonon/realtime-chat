@@ -11,3 +11,4 @@ wheels/
 .env
 redisdata
 .idea
+*.idea
