@@ -71,8 +71,12 @@ class SecuritySettings(BaseSettings, ConfigMixin):
 class Settings(BaseSettings, ConfigMixin):
     api_v1_prefix: str = "/api/v1"
     redis_settings: RedisSettings = Field(default_factory=RedisSettings.from_env)
-    postgres_settings: PostgresSettings = Field(default_factory=PostgresSettings.from_env)
-    security_settings: SecuritySettings = Field(default_factory=SecuritySettings.from_env)
+    postgres_settings: PostgresSettings = Field(
+        default_factory=PostgresSettings.from_env
+    )
+    security_settings: SecuritySettings = Field(
+        default_factory=SecuritySettings.from_env
+    )
 
 
 @lru_cache
