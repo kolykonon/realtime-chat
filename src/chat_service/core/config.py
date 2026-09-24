@@ -31,6 +31,7 @@ class PostgresSettings(BaseSettings, ConfigMixin):
             f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
         )
 
+
 class RedisSettings(BaseSettings, ConfigMixin):
     user: str | None = os.getenv("REDIS_USER")
     password: str | None = os.getenv("REDIS_PASSWORD")
@@ -49,9 +50,9 @@ class SecuritySettings(BaseSettings, ConfigMixin):
     secret_key: str | None = os.getenv("SECRET_KEY")
     access_token_expire_minutes: str | None = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
     refresh_token_expire_days: str | None = os.getenv("REFRESH_TOKEN_EXPIRE_DAYS")
-    access_token_type: str = 'access'
-    refresh_token_type: str = 'refresh'
-    algorithm: str = 'HS256'
+    access_token_type: str = "access"
+    refresh_token_type: str = "refresh"
+    algorithm: str = "HS256"
 
 
 class Settings(BaseSettings, ConfigMixin):
@@ -64,5 +65,6 @@ class Settings(BaseSettings, ConfigMixin):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
 
 SettingsDep = Annotated[Settings, Depends(get_settings)]

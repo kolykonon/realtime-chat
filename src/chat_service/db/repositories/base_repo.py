@@ -7,14 +7,17 @@ from chat_service.db.base import Base
 from chat_service.db.dep import SessionDep
 
 
-class BaseRepo[ModelType: Base, CreateSchemaType: BaseModel, UpdateSchemaType: BaseModel]:
-    def __init__(self, session: SessionDep,model: type[ModelType]) -> None:
+class BaseRepo[
+    ModelType: Base,
+    CreateSchemaType: BaseModel,
+    UpdateSchemaType: BaseModel,
+]:
+    def __init__(self, session: SessionDep, model: type[ModelType]) -> None:
         self.session = session
         self.model = model
 
-    async def get_list(self,
-        limit: int | None = None,
-        offset: int | None = None
+    async def get_list(
+        self, limit: int | None = None, offset: int | None = None
     ) -> Sequence[ModelType]:
         query = select(self.model)
         if limit:
@@ -36,7 +39,7 @@ class BaseRepo[ModelType: Base, CreateSchemaType: BaseModel, UpdateSchemaType: B
 
     async def update(self, obj: ModelType, update_schema: UpdateSchemaType) -> None:
         for attribute, value in update_schema.model_dump(exclude_unset=True).items():
-            setattr(obj,attribute, value)
+            setattr(obj, attribute, value)
         await self.session.flush()
 
     async def delete(self, obj: ModelType) -> None:

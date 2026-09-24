@@ -5,11 +5,12 @@ from pydantic import BaseModel
 from chat_service.db.repositories.base_repo import BaseRepo
 
 
-class BaseService[ModelType,
+class BaseService[
+    ModelType,
     CreateSchemaType: BaseModel,
     UpdateSchemaType: BaseModel,
     ResponseSchemaType: BaseModel,
-    RepoType: BaseRepo
+    RepoType: BaseRepo,
 ]:
     def __init__(self, repo: RepoType):
         self.repo = repo

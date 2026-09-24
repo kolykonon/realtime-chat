@@ -18,7 +18,9 @@ class UserService(BaseService[User, UserCreate, UserUpdate, UserRead, UserRepo])
         if existed:
             raise ValueError("Username already exists")
         user = await self.repo.create(
-            UserCreateDB(username=data.username, hashed_password=hash_password(data.password))
+            UserCreateDB(
+                username=data.username, hashed_password=hash_password(data.password)
+            )
         )
         return UserRead.model_validate(user)
 
@@ -28,5 +30,6 @@ class UserService(BaseService[User, UserCreate, UserUpdate, UserRead, UserRepo])
 
 def get_user_service(repo: UserRepoDep) -> UserService:
     return UserService(repo)
+
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]

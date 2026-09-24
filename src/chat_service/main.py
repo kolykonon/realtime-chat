@@ -21,7 +21,6 @@ app.add_middleware(
 app.include_router(v1_router, prefix=settings.api_v1_prefix)
 
 
-
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "healthy"}

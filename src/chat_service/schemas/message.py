@@ -7,6 +7,7 @@ class MessageRead(BaseModel):
     class Config:
         from_attributes = True
 
+
 class MessageCreate(BaseModel):
     text: str
 

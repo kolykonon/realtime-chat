@@ -13,10 +13,21 @@ from chat_service.services.user_service import UserServiceDep
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 
-async def get_current_user(settings: SettingsDep, user_service: UserServiceDep, token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+async def get_current_user(
+    settings: SettingsDep,
+    user_service: UserServiceDep,
+    token: str = Depends(oauth2_scheme),
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+    )
     try:
-        payload = decode_jwt(token, settings.security_settings.secret_key, settings.security_settings.algorithm)  # pyright: ignore[reportArgumentType]
+        payload = decode_jwt(
+            token,
+            settings.security_settings.secret_key,
+            settings.security_settings.algorithm,
+        )  # pyright: ignore[reportArgumentType]
         id = payload.get("sub")
         if not id:
             raise credentials_exception
@@ -26,5 +37,6 @@ async def get_current_user(settings: SettingsDep, user_service: UserServiceDep, 
     if not user:
         raise credentials_exception
     return user
+
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]

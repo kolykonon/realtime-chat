@@ -5,11 +5,11 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context   # pyright: ignore[reportAttributeAccessIssue] хз почему ругается
+from alembic import context  # pyright: ignore[reportAttributeAccessIssue] хз почему ругается
 
 from chat_service.core.config import get_settings
 from chat_service.db.base import Base
-from chat_service.db.models import Message, User #noqa: F401 модели импортировал чтобы алембик увидел их
+from chat_service.db.models import Message, User  # noqa: F401 модели импортировал чтобы алембик увидел их
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -31,7 +31,9 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", str(get_settings().postgres_settings.postgres_dsn))
+config.set_main_option(
+    "sqlalchemy.url", str(get_settings().postgres_settings.postgres_dsn)
+)
 
 
 def run_migrations_offline() -> None:

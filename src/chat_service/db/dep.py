@@ -20,4 +20,5 @@ async def get_db() -> AsyncIterator[AsyncSession]:
             await session.rollback()
             raise
 
+
 SessionDep = Annotated[AsyncSession, Depends(get_db)]

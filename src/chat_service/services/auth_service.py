@@ -19,7 +19,9 @@ class AuthService:
             return None
         return user
 
+
 def get_auth_service(user_service: UserServiceDep) -> AuthService:
     return AuthService(user_service)
+
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
