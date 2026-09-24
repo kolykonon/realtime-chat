@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: realtime_chat
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_USER: ${REDIS_USER}
+    volumes:
+      - ./redisdata:/data
+      - /app/.venv
+    healthcheck:
+      test: ["CMD", "redis-cli", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+  backend:
+    build: .
+    ports:
+       - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+      - UV_PROJECT_ENVIRONMENT=/app/.venv
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
+  redisdata:
