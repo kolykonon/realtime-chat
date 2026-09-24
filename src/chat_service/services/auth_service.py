@@ -1,22 +1,25 @@
-from fastapi import Depends, HTTPException,status
+from typing import Annotated
 
-from chat_service.schemas.user import UserCreate
-from chat_service.services.user_service import get_user_service, UserService
-from chat_service.core.security import hash_password
+from fastapi import Depends
+
+from chat_service.core.security import dummy_hash, verify_password
+from chat_service.services.user_service import UserService, UserServiceDep
 
 
 class AuthService:
-    def __init__(self, user_service: UserService = Depends(get_user_service)) -> None:
+    def __init__(self, user_service: UserService):
         self.user_service = user_service
 
-    async def register_user(self,user: UserCreate) -> None:
-        existed = await self.user_service.get_user(user.username)
-        if existed is not None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
-        user.password = hash_password(user.password)
-        await self.user_service.create_user(user)
+    async def authenticate_user(self, username: str, password: str):
+        user = await self.user_service.get_user_by_username(username)
+        if not user:
+            verify_password(password, dummy_hash)
+            return None
+        if not verify_password(password, user.hashed_password):
+            return None
+        return user
 
-def get_auth_service(user_service: UserService = Depends(get_user_service)) -> AuthService:
+def get_auth_service(user_service: UserServiceDep) -> AuthService:
     return AuthService(user_service)
 
-
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
