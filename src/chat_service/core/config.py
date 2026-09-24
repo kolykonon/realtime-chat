@@ -1,10 +1,9 @@
-import os
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Self
 
 from dotenv import load_dotenv
 from fastapi import Depends
-from pydantic import PostgresDsn, RedisDsn
+from pydantic import Field, PostgresDsn, RedisDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv()
@@ -13,43 +12,57 @@ load_dotenv()
 class ConfigMixin:
     model_config = SettingsConfigDict(
         env_file=".env",
-        case_sensitive=True,
+        case_sensitive=False,
         extra="ignore",
     )
 
+    @classmethod
+    def from_env(cls) -> Self:
+        return cls()
+
 
 class PostgresSettings(BaseSettings, ConfigMixin):
-    host: str | None = os.getenv("POSTGRES_HOST")
-    port: str | None = os.getenv("POSTGRES_PORT")
-    db: str | None = os.getenv("POSTGRES_DB")
-    user: str | None = os.getenv("POSTGRES_USER")
-    password: str | None = os.getenv("POSTGRES_PASSWORD")
+    postgres_host: str
+    postgres_port: int
+    postgres_db: str
+    postgres_user: str
+    postgres_password: SecretStr
 
     @property
     def postgres_dsn(self) -> PostgresDsn:
-        return PostgresDsn(
-            f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+        return PostgresDsn.build(
+            scheme="postgresql+asyncpg",
+            username=self.postgres_user,
+            password=self.postgres_password.get_secret_value(),
+            host=self.postgres_host,
+            port=self.postgres_port,
+            path=self.postgres_db,
         )
 
 
 class RedisSettings(BaseSettings, ConfigMixin):
-    user: str | None = os.getenv("REDIS_USER")
-    password: str | None = os.getenv("REDIS_PASSWORD")
-    host: str | None = os.getenv("REDIS_HOST")
-    port: str | None = os.getenv("REDIS_PORT")
-    db: str | None = os.getenv("REDIS_DB")
+    redis_user: str
+    redis_password: str
+    redis_host: str
+    redis_port: int
+    redis_db: str
 
     @property
     def redis_dsn(self) -> RedisDsn:
-        return RedisDsn(
-            f"redis://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}"
+        return RedisDsn.build(
+            scheme="redis",
+            username=self.redis_user,
+            password=self.redis_password,
+            host=self.redis_host,
+            port=self.redis_port,
+            path=self.redis_db,
         )
 
 
 class SecuritySettings(BaseSettings, ConfigMixin):
-    secret_key: str | None = os.getenv("SECRET_KEY")
-    access_token_expire_minutes: str | None = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-    refresh_token_expire_days: str | None = os.getenv("REFRESH_TOKEN_EXPIRE_DAYS")
+    secret_key: SecretStr
+    access_token_expire_minutes: int
+    refresh_token_expire_days: int
     access_token_type: str = "access"
     refresh_token_type: str = "refresh"
     algorithm: str = "HS256"
@@ -57,9 +70,9 @@ class SecuritySettings(BaseSettings, ConfigMixin):
 
 class Settings(BaseSettings, ConfigMixin):
     api_v1_prefix: str = "/api/v1"
-    redis_settings: RedisSettings = RedisSettings()
-    postgres_settings: PostgresSettings = PostgresSettings()
-    security_settings: SecuritySettings = SecuritySettings()
+    redis_settings: RedisSettings = Field(default_factory=RedisSettings.from_env)
+    postgres_settings: PostgresSettings = Field(default_factory=PostgresSettings.from_env)
+    security_settings: SecuritySettings = Field(default_factory=SecuritySettings.from_env)
 
 
 @lru_cache
