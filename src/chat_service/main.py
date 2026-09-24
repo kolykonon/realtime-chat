@@ -1,31 +1,27 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
-from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
-from chat_service.db.base import Base
-from chat_service.db.dep import engine
+from chat_service.api.v1 import router as v1_router
 from chat_service.core.config import get_settings
 
 settings = get_settings()
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    Base.metadata.create_all(engine)
-    yield
-    Base.metadata.drop_all(engine)
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
-    SessionMiddleware,
-    secret_key=settings.security_settings.secret_key,
-    https_only=True,
-    same_site='lax'
+    CORSMiddleware,
+    allow_origins=["127.0.0.1"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
-@app.get('/health')
-def health() -> dict[str,str]:
-    return {'status': 'healthy'}
+app.include_router(v1_router, prefix=settings.api_v1_prefix)
+
+
+
+@app.get("/health")
+def health() -> dict[str, str]:
+    return {"status": "healthy"}
