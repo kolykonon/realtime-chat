@@ -26,12 +26,12 @@ async def get_token(
     payload = {"sub": str(user.id), "username": user.username}
     access_token = encode_jwt(
         payload,
-        settings.security_settings.secret_key,
+        settings.security_settings.secret_key.get_secret_value(),
         token_type=settings.security_settings.access_token_type,
-    )  # pyright: ignore[reportArgumentType]
+    )
     refresh_token = encode_jwt(
         payload,
-        settings.security_settings.secret_key,
+        settings.security_settings.secret_key.get_secret_value(),
         token_type=settings.security_settings.refresh_token_type,
-    )  # pyright: ignore[reportArgumentType]
+    )
     return Token(access_token=access_token, refresh_token=refresh_token)

@@ -25,7 +25,7 @@ async def get_current_user(
     try:
         payload = decode_jwt(
             token,
-            settings.security_settings.secret_key,
+            settings.security_settings.secret_key.get_secret_value(),
             settings.security_settings.algorithm,
         )  # pyright: ignore[reportArgumentType]
         id = payload.get("sub")

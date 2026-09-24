@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Literal
+from typing import Any
 
 import jwt
 
@@ -12,9 +12,7 @@ def encode_jwt(
     payload: dict[str, Any],
     secret: str,
     algorithm: str = settings.security_settings.algorithm,
-    token_type: Literal[
-        "access", "refresh"
-    ] = settings.security_settings.access_token_type,  # pyright: ignore[reportArgumentType] опять пайрайт ругается
+    token_type: str = settings.security_settings.access_token_type,
 ) -> str:
     new_payload = payload.copy()
     new_payload.update(
@@ -26,14 +24,14 @@ def encode_jwt(
             exp=datetime.datetime.now(datetime.UTC)
             + datetime.timedelta(
                 minutes=int(settings.security_settings.access_token_expire_minutes)
-            )  # pyright: ignore[reportArgumentType]
+            )
         )
     elif token_type == settings.security_settings.refresh_token_type:
         new_payload.update(
             exp=datetime.datetime.now(datetime.UTC)
             + datetime.timedelta(
                 days=int(settings.security_settings.refresh_token_expire_days)
-            )  # pyright: ignore[reportArgumentType]
+            )
         )
     else:
         raise ValueError(f"Unknown token type: {token_type}")
