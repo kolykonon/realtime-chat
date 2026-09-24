@@ -6,7 +6,7 @@ services:
       POSTGRES_DB: realtime_chat
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
@@ -24,6 +24,7 @@ services:
       REDIS_USER: ${REDIS_USER}
     volumes:
       - ./redisdata:/data
+      - /app/.venv
     healthcheck:
       test: ["CMD", "redis-cli", "$REDIS_PASSWORD", "ping"]
       interval: 30s
@@ -34,14 +35,16 @@ services:
     build: .
     ports:
        - "8000:8000"
+    volumes:
+      - .:/app
     env_file:
       - .env
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
+      - UV_PROJECT_ENVIRONMENT=/app/.venv
     depends_on:
       - db
       - redis
-
-
-
 
 volumes:
   postgres_data:
