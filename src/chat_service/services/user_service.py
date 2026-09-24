@@ -11,7 +11,7 @@ from chat_service.services.base_service import BaseService
 
 class UserService(BaseService[User, UserCreate, UserUpdate, UserRead, UserRepo]):
     def __init__(self, repo: UserRepo):
-        super().__init__(repo)
+        super().__init__(repo, UserRead)
 
     async def create(self, data: UserCreate) -> UserRead:
         existed = await self.repo.get_by_username(data.username)

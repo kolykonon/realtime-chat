@@ -12,19 +12,20 @@ class BaseService[
     ResponseSchemaType: BaseModel,
     RepoType: BaseRepo,
 ]:
-    def __init__(self, repo: RepoType):
+    def __init__(self, repo: RepoType, response_schema: type[ResponseSchemaType]):
         self.repo = repo
+        self.response_schema = response_schema
 
     async def create(self, data: CreateSchemaType) -> ResponseSchemaType:
         new_obj = await self.repo.create(data)
-        return ResponseSchemaType.model_validate(new_obj)  # pyright: ignore[reportAttributeAccessIssue]
+        return self.response_schema.model_validate(new_obj)
 
     async def update(self, id: int, data: UpdateSchemaType) -> ResponseSchemaType:
         obj = await self.repo.get_one(id)
         if obj is None:
             raise ValueError(f"Object with id {id} not found")
         await self.repo.update(obj, data)
-        return ResponseSchemaType.model_validate(obj)  # pyright: ignore[reportAttributeAccessIssue]
+        return self.response_schema.model_validate(obj)
 
     async def get(self, id: int) -> ModelType | None:
         return await self.repo.get_one(id)
